@@ -30,8 +30,9 @@ class Trainer:
         import pycocotools.mask as maskUtils
 
         if self.model_name == "yolov11":
-            images_dir = os.path.join(self.dataset_path, "images", "train")
-            labels_dir = os.path.join(self.dataset_path, "labels", "train")
+            images_dir = os.path.join(self.dataset_path, "train", "images")
+            labels_dir = os.path.join(self.dataset_path, "train", "labels")
+            print(images_dir)
 
             if not os.path.exists(images_dir) or not os.path.exists(labels_dir):
                 print("❌ Could not find dataset structure like /images/train and /labels/train.")
@@ -191,9 +192,9 @@ class Trainer:
 
             suffix = size_map.get(self.model_size, "m")
 
-            if self.task_type == "detection":
+            if self.model_type == "detection":
                 model_path = f"yolo11{suffix}.pt"
-            elif self.task_type == "segmentation":
+            elif self.model_type == "segmentation":
                 model_path = f"yolo11{suffix}-seg.pt"
 
             model = YOLO(model_path)
