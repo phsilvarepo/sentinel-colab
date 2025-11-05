@@ -3,7 +3,7 @@ import sys
 import torch
 
 class Trainer:
-    def __init__(self, model_name: str, dataset_path: str, type: str, model_size: str, resolution: str, output_dir: str = "/content/output"):
+    def __init__(self, model_name: str, dataset_path: str, type: str, model_size: str = "medium", resolution: str = "640", output_dir: str = "/content/output"):
         self.model_name = model_name.lower()
         self.dataset_path = dataset_path
         self.type = model_type
