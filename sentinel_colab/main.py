@@ -17,6 +17,7 @@ class Trainer:
         self.model = self._load_model()
 
     def _install(self, package):
+        print("Entrou")
         subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
 
     def _load_model(self):
