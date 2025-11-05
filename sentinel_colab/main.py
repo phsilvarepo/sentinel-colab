@@ -266,6 +266,7 @@ class Trainer:
             print("✅ Training complete.")
             return results
 
+    '''
     def resume_training(self, checkpoint_path, **kwargs):
     print("⚙️ Resuming training")
 
@@ -285,7 +286,7 @@ class Trainer:
 
     elif self.model_name == "yolov11":
         print("🏋️ Resuming training of YOLOv11...")
-        
+
         model = YOLO(checkpoint_path)
         yaml_path = f"{self.dataset_path}/data.yaml"
 
@@ -295,4 +296,4 @@ class Trainer:
             resume=True,
             project=self.output_dir
         )
-
+    '''
