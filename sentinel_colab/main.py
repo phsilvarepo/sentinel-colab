@@ -3,7 +3,7 @@ import sys
 import torch
 
 class Trainer:
-    def __init__(self, model_name: str, dataset_path: str, type: str, model_size: str = "medium", resolution: str = "640", output_dir: str = "/content/output"):
+    def __init__(self, model_name: str, dataset_path: str, model_type: str, model_size: str = "medium", resolution: str = "384", output_dir: str = "/content/output"):
         self.model_name = model_name.lower()
         self.dataset_path = dataset_path
         self.type = model_type
@@ -151,26 +151,26 @@ class Trainer:
     def _load_model(self):
         if self.model_name == "rfdetr":
             self._install("rfdetr supervision albumentations")
-            if model_type == "detection":
-                if model_size == "nano":
+            if self.model_type == "detection":
+                if self.model_size == "nano":
                     from rfdetr import RFDETRNano
                     model = RFDETRNano()
-                elif model_size == "small":
+                elif self.model_size == "small":
                     from rfdetr import RFDETRSmall
                     model = RFDETRSmall()
-                elif model_size == "medium":
+                elif self.model_size == "medium":
                     from rfdetr import RFDETRMedium
                     model = RFDETRMedium()
-                elif model_size == "large":
+                elif self.model_size == "large":
                     from rfdetr import RFDETRLarge
                     model = RFDETRLarge()
-            elif model_type == "segmentation":
+            elif self.model_type == "segmentation":
                 from rfdetr import RFDETRSegPreview
-                if resolution == "312":
+                if self.resolution == "312":
                     model = RFDETRSegPreview(resolution=312)
-                elif resolution == "384":
+                elif self.resolution == "384":
                     model = RFDETRSegPreview(resolution=384)
-                elif resolution == "432":
+                elif self.resolution == "432":
                     model = RFDETRSegPreview(resolution=432)
 
             return model
