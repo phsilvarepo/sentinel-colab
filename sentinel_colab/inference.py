@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 class Predictor:
-    def __init__(self, model_name: str, model_type: str, data_path: str, weights: str = None, model_size: str = "medium", save: str = "false", conf: float = 0.4, resolution: int = 384):
+    def __init__(self, model_name: str, model_type: str, data_path: str, weights: str = None, model_size: str = "medium", save: bool = False, conf: float = 0.4, resolution: int = 384):
         self.model_name = model_name
         self.model_type = model_type
         self.model_size = model_size
@@ -60,7 +60,7 @@ class Predictor:
             plt.axis("off")
             plt.show()
 
-            if self.save.lower() == "true" or self.save.lower() == "yes":
+            if self.save == True:
                 save_dir = "/rfdetr_results"
                 os.makedirs(save_dir, exist_ok=True)
                 output_path = os.path.join(save_dir, os.path.basename(self.data_path))
