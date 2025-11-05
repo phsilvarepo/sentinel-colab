@@ -1,0 +1,105 @@
+import os 
+import cv2
+import subprocess
+import sys
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+class Predictor:
+    def __init__(self, model_name: str, model_type: str, data_path: str, weights: str, save: str, conf: str, resolution: str):
+        self.model_name = model_name
+        self.model_type = model_type
+        self.data_path = data_path
+        self.weights = weights
+        self.save = save
+        self.conf = conf
+        self.resolution = resolution
+
+        print(f"🚀 Performing inference for model: {self.model_name}")
+        print(f"📂 Data path: {self.data_path}")
+
+        if self.model_name == "yolov11":
+            model = self._load_model(model_name, weights)
+            results = model(data_path, conf=float(conf), save=save)
+
+        elif self.model_name == "rfdetr":
+            model = self._load_model(model_name, weights, model_type, model_size, resolution)
+            detections = model.predict(data_path, threshold=float(conf))
+        
+            image = cv2.cvtColor(cv2.imread(data_path), cv2.COLOR_BGR2RGB)
+
+            boxes = detections.xyxy
+            scores = detections.confidence
+            labels = detections.class_id
+
+            plt.figure(figsize=(10, 10))
+            plt.imshow(image)
+
+            for (x1, y1, x2, y2), conf, cls in zip(boxes, scores, labels):
+                rect = patches.Rectangle(
+                    (x1, y1),
+                    x2 - x1,
+                    y2 - y1,
+                    linewidth=2,
+                    edgecolor='lime',
+                    facecolor='none'
+                )
+                plt.gca().add_patch(rect)
+
+                class_name = class_names.get(int(cls), f"cls {int(cls)}")
+                plt.text(
+                    x1,
+                    max(y1 - 5, 15),
+                    f"{class_name} ({conf:.2f})",
+                    color="white",
+                    fontsize=9,
+                    bbox=dict(facecolor="black", alpha=0.5)
+                )
+
+            plt.axis("off")
+            plt.show()
+
+            if self.save.lower() == "true" or self.save.lower() == "yes":
+                save_dir = "/rfdetr_results"
+                os.makedirs(save_dir, exist_ok=True)
+                output_path = os.path.join(save_dir, os.path.basename(self.data_path))
+                plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+                print(f"💾 Saved annotated image at: {output_path}")
+                plt.close()
+
+    def _install(self, package):
+        print(f"📦 Installing: {package}")
+        subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
+
+    def _load_model(self, model_name, weights, model_type, model_size, resolution):
+        if model_name == "rfdetr":
+            self._install("rfdetr supervision albumentations")
+            if model_type == "detection":
+                if model_size == "nano":
+                    from rfdetr import RFDETRNano
+                    model = RFDETRNano(pretrain_weights=weights)
+                elif model_size == "small":
+                    from rfdetr import RFDETRSmall
+                    model = RFDETRSmall(pretrain_weights=weights)
+                elif model_size == "medium":
+                    from rfdetr import RFDETRMedium
+                    model = RFDETRMedium(pretrain_weights=weights)
+                elif model_size == "large":
+                    from rfdetr import RFDETRLarge
+                    model = RFDETRLarge(pretrain_weights=weights)
+            elif model_type == "segmentation":
+                from rfdetr import RFDETRSegPreview
+                if resolution == "312":
+                    model = RFDETRSegPreview(resolution=312, pretrain_weights=weights)
+                elif resolution == "384":
+                    model = RFDETRSegPreview(resolution=384, pretrain_weights=weights)
+                elif resolution == "432":
+                    model = RFDETRSegPreview(resolution=432, pretrain_weights=weights)
+
+            return model
+
+        elif model_name == "yolov11":
+            self._install("ultralytics")
+            from ultralytics import YOLO
+            model = YOLO(weights)
+            return model

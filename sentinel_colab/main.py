@@ -228,7 +228,7 @@ class Trainer:
             }
         else:
             raise ValueError(f"❌ Unsupported model: {self.model_name}")
-            
+
     def train(self, **kwargs):
         """Train with defaults that can be overridden by user-provided kwargs."""
         train_args = {**self.default_hyperparams, **kwargs}
@@ -265,4 +265,34 @@ class Trainer:
 
             print("✅ Training complete.")
             return results
+
+    def resume_training(self, checkpoint_path, **kwargs):
+    print("⚙️ Resuming training")
+
+    train_args = {**self.default_hyperparams, **kwargs}
+
+    if self.model_name == "rfdetr":
+        print("🏋️ Resuming training of RF-DETR...")
+        self.model.train(
+            dataset_dir=self.dataset_path,
+            output_dir=self.output_dir,
+            batch_size=train_args["batch_size"],
+            num_epochs=train_args["epochs"],
+            learning_rate=train_args["lr"],
+            weight_decay=train_args["weight_decay"],
+            resume_from=checkpoint_path
+        )
+
+    elif self.model_name == "yolov11":
+        print("🏋️ Resuming training of YOLOv11...")
+        
+        model = YOLO(checkpoint_path)
+        yaml_path = f"{self.dataset_path}/data.yaml"
+
+        model.train(
+            data=yaml_path,
+            epochs=train_args["epochs"],
+            resume=True,
+            project=self.output_dir
+        )
 
