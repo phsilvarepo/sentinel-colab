@@ -3,7 +3,10 @@ import sys
 import torch
 
 class Trainer:
-    def __init__(self, model_name: str, dataset_path: str, model_type: str, model_size: str = "medium", resolution: str = "384", output_dir: str = "/content/output"):
+    def __init__(self, model_name: str, dataset_path: str, model_type: str,
+                 model_size: str = "medium", resolution: str = "384",
+                 output_dir: str = "/content/output"):
+
         self.model_name = model_name.lower()
         self.dataset_path = dataset_path
         self.model_type = model_type
@@ -19,6 +22,8 @@ class Trainer:
 
         self._validate_labels()
         self.model = self._load_model()
+
+        self.default_hyperparams = self._get_default_hyperparams()
 
     def _validate_labels(self, num_images=5, show_masks=True):
         import os
@@ -200,20 +205,40 @@ class Trainer:
             model = YOLO(model_path)
             return model
 
-        else:
-            raise ValueError(f"❌ Unsupported model: {self.model_name}")
-
     def train(self, **kwargs):
+        """Train with defaults that can be overridden by user-provided kwargs."""
+        train_args = {**self.default_hyperparams, **kwargs}
+
+        print(f"⚙️ Training config: {train_args}")
+
         if self.model_name == "rfdetr":
             print("🏋️ Training RF-DETR...")
             self.model.train(
                 dataset_dir=self.dataset_path,
                 output_dir=self.output_dir,
-                **kwargs
+                batch_size=train_args["batch_size"],
+                num_epochs=train_args["epochs"],
+                learning_rate=train_args["lr"],
+                weight_decay=train_args["weight_decay"],
             )
 
         elif self.model_name == "yolov11":
             print("🏋️ Training YOLOv11...")
-            results = self.model.train(data=self.dataset_path, **kwargs)
+            from os.path import join
+            yaml_path = join(self.dataset_path, "data.yaml")
+
+            results = self.model.train(
+                data=yaml_path,
+                imgsz=train_args["imgsz"],
+                epochs=train_args["epochs"],
+                batch=train_args["batch_size"],
+                lr0=train_args["lr0"],
+                momentum=train_args["momentum"],
+                weight_decay=train_args["weight_decay"],
+                patience=train_args["patience"],
+                project=self.output_dir
+            )
+
             print("✅ Training complete.")
             return results
+
