@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="sentinel-colab",                # Package name
+    name="sentinel_colab",                # Package name
     version="0.1.0",                   # Version
     author="Pedro Silva",                # Replace with your name
     author_email="pedrosilva7320@gmail.com",    # Replace with your email
