@@ -179,7 +179,7 @@ class Trainer:
             self._install("ultralytics")
             from ultralytics import YOLO
 
-            print(f"📘 Loading YOLOv11 ({self.task_type}, {self.model_size}) model...")
+            print(f"📘 Loading YOLOv11 ({self.model_type}, {self.model_size}) model...")
 
             size_map = {
                 "nano": "n",
