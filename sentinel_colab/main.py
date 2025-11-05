@@ -6,7 +6,7 @@ class Trainer:
     def __init__(self, model_name: str, dataset_path: str, model_type: str, model_size: str = "medium", resolution: str = "384", output_dir: str = "/content/output"):
         self.model_name = model_name.lower()
         self.dataset_path = dataset_path
-        self.type = model_type
+        self.model_type = model_type
         self.model_size = model_size
         self.resolution = resolution
         self.output_dir = output_dir
@@ -17,7 +17,7 @@ class Trainer:
         print(f"💾 Output directory: {self.output_dir}")
         print(f"🖥️ Using device: {self.device}")
 
-        _validate_labels()
+        self._validate_labels()
         self.model = self._load_model()
 
     def _validate_labels(self, num_images=5, show_masks=True):
