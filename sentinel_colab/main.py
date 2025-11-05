@@ -29,7 +29,7 @@ class Trainer:
         from pycocotools.coco import COCO
         import pycocotools.mask as maskUtils
 
-        if self.model_name == "yolo":
+        if self.model_name == "yolov11":
             images_dir = os.path.join(self.dataset_path, "images", "train")
             labels_dir = os.path.join(self.dataset_path, "labels", "train")
 
