@@ -20,11 +20,11 @@ class Predictor:
         print(f"📂 Data path: {self.data_path}")
 
         if self.model_name == "yolov11":
-            model = self._load_model(model_name, weights)
+            model = self._load_model()
             results = model(data_path, conf=conf, save=save)
 
         elif self.model_name == "rfdetr":
-            model = self._load_model(model_name, weights, model_type, model_size, resolution)
+            model = self._load_model()
             detections = model.predict(data_path, threshold=conf)
         
             image = cv2.cvtColor(cv2.imread(data_path), cv2.COLOR_BGR2RGB)
@@ -72,43 +72,43 @@ class Predictor:
         print(f"📦 Installing: {package}")
         subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
 
-    def _load_model(self, model_name, weights, model_type, model_size, resolution):
-        if model_name == "rfdetr":
+    def _load_model(self):
+        if self.model_name == "rfdetr":
             self._install("rfdetr supervision albumentations")
 
-            if weights is None:
-                weights = "default"
-                
-            if model_type == "detection":
-                if model_size == "nano":
+            if self.weights is None:
+                self.weights = "default"
+
+            if self.model_type == "detection":
+                if self.model_size == "nano":
                     from rfdetr import RFDETRNano
-                    model = RFDETRNano(pretrain_weights=weights)
-                elif model_size == "small":
+                    model = RFDETRNano(pretrain_weights=self.weights)
+                elif self.model_size == "small":
                     from rfdetr import RFDETRSmall
-                    model = RFDETRSmall(pretrain_weights=weights)
-                elif model_size == "medium":
+                    model = RFDETRSmall(pretrain_weights=self.weights)
+                elif self.model_size == "medium":
                     from rfdetr import RFDETRMedium
-                    model = RFDETRMedium(pretrain_weights=weights)
-                elif model_size == "large":
+                    model = RFDETRMedium(pretrain_weights=self.weights)
+                elif self.model_size == "large":
                     from rfdetr import RFDETRLarge
-                    model = RFDETRLarge(pretrain_weights=weights)
-            elif model_type == "segmentation":
+                    model = RFDETRLarge(pretrain_weights=self.weights)
+            elif self.model_type == "segmentation":
                 from rfdetr import RFDETRSegPreview
-                if resolution == 312:
-                    model = RFDETRSegPreview(resolution=312, pretrain_weights=weights)
-                elif resolution == 384:
-                    model = RFDETRSegPreview(resolution=384, pretrain_weights=weights)
-                elif resolution == 432:
-                    model = RFDETRSegPreview(resolution=432, pretrain_weights=weights)
+                if self.resolution == 312:
+                    model = RFDETRSegPreview(resolution=312, pretrain_weights=self.weights)
+                elif self.resolution == 384:
+                    model = RFDETRSegPreview(resolution=384, pretrain_weights=self.weights)
+                elif self.resolution == 432:
+                    model = RFDETRSegPreview(resolution=432, pretrain_weights=self.weights)
 
             return model
 
-        elif model_name == "yolov11":
+        elif self.model_name == "yolov11":
             self._install("ultralytics")
             from ultralytics import YOLO
 
-            if weights is None:
-                weights = "yolov11m.pt"
+            if self.weights is None:
+                self.weights = "yolov11m.pt"
 
-            model = YOLO(weights)
+            model = YOLO(self.weights)
             return model
