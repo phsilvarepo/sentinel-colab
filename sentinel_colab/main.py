@@ -88,8 +88,8 @@ class Trainer:
                 plt.show()
 
         elif self.model_name == "rfdetr":
-            coco_json_path = os.path.join(self.dataset_path, "annotations", "instances_train.json")
-            images_dir = os.path.join(self.dataset_path, "images", "train")
+            coco_json_path = os.path.join(self.dataset_path, "train", "_annotations.coco.json")
+            images_dir = os.path.join(self.dataset_path, "train")
 
             if not os.path.exists(coco_json_path):
                 print("❌ Could not find COCO annotation file at:", coco_json_path)
