@@ -205,6 +205,30 @@ class Trainer:
             model = YOLO(model_path)
             return model
 
+    def _get_default_hyperparams(self):
+        """Define default hyperparameters for each model type."""
+        if self.model_name == "yolov11":
+            return {
+                "epochs": 100,
+                "batch_size": 16,
+                "imgsz": 640,
+                "lr0": 0.01,
+                "momentum": 0.937,
+                "weight_decay": 0.0005,
+                "patience": 20,
+            }
+        elif self.model_name == "rfdetr":
+            return {
+                "epochs": 50,
+                "batch_size": 8,
+                "lr": 1e-4,
+                "weight_decay": 1e-4,
+                "warmup_steps": 1000,
+                "gradient_clip_norm": 0.1,
+            }
+        else:
+            raise ValueError(f"❌ Unsupported model: {self.model_name}")
+            
     def train(self, **kwargs):
         """Train with defaults that can be overridden by user-provided kwargs."""
         train_args = {**self.default_hyperparams, **kwargs}
