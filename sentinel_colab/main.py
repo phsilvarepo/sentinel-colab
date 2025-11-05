@@ -19,9 +19,6 @@ class Trainer:
     def _install(self, package):
         print(f"📦 Installing: {package}")
         subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
-        import site, importlib
-        importlib.reload(site)
-
 
     def _load_model(self):
         if self.model_name == "rfdetr":
