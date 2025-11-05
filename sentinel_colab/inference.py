@@ -108,7 +108,7 @@ class Predictor:
             from ultralytics import YOLO
 
             if self.weights is None:
-                self.weights = "yolov11m.pt"
+                self.weights = "yolo11m.pt"
 
             model = YOLO(self.weights)
             return model
