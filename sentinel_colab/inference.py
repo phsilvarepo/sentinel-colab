@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 class Predictor:
-    def __init__(self, model_name: str, model_type: str, data_path: str, weights: str, save: str, conf: str, resolution: str):
+    def __init__(self, model_name: str, model_type: str, data_path: str, weights: str = None, model_size: str = "medium", save: str = "false", conf: float = 0.4, resolution: int = 384):
         self.model_name = model_name
         self.model_type = model_type
+        self.model_size = model_size
         self.data_path = data_path
         self.weights = weights
         self.save = save
@@ -20,11 +21,11 @@ class Predictor:
 
         if self.model_name == "yolov11":
             model = self._load_model(model_name, weights)
-            results = model(data_path, conf=float(conf), save=save)
+            results = model(data_path, conf=conf, save=save)
 
         elif self.model_name == "rfdetr":
             model = self._load_model(model_name, weights, model_type, model_size, resolution)
-            detections = model.predict(data_path, threshold=float(conf))
+            detections = model.predict(data_path, threshold=conf)
         
             image = cv2.cvtColor(cv2.imread(data_path), cv2.COLOR_BGR2RGB)
 
@@ -74,6 +75,10 @@ class Predictor:
     def _load_model(self, model_name, weights, model_type, model_size, resolution):
         if model_name == "rfdetr":
             self._install("rfdetr supervision albumentations")
+
+            if weights is None:
+                weights = "default"
+                
             if model_type == "detection":
                 if model_size == "nano":
                     from rfdetr import RFDETRNano
@@ -89,11 +94,11 @@ class Predictor:
                     model = RFDETRLarge(pretrain_weights=weights)
             elif model_type == "segmentation":
                 from rfdetr import RFDETRSegPreview
-                if resolution == "312":
+                if resolution == 312:
                     model = RFDETRSegPreview(resolution=312, pretrain_weights=weights)
-                elif resolution == "384":
+                elif resolution == 384:
                     model = RFDETRSegPreview(resolution=384, pretrain_weights=weights)
-                elif resolution == "432":
+                elif resolution == 432:
                     model = RFDETRSegPreview(resolution=432, pretrain_weights=weights)
 
             return model
@@ -101,5 +106,9 @@ class Predictor:
         elif model_name == "yolov11":
             self._install("ultralytics")
             from ultralytics import YOLO
+
+            if weights is None:
+                weights = "yolov11m.pt"
+
             model = YOLO(weights)
             return model
