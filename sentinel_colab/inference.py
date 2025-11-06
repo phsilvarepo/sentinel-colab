@@ -43,7 +43,7 @@ class Predictor:
             plt.figure(figsize=(10, 10))
             plt.imshow(image)
 
-            for (x1, y1, x2, y2), conf, cls in zip(boxes, scores, labels):
+            for (x1, y1, x2, y2), conf in zip(boxes, scores):
                 rect = patches.Rectangle(
                     (x1, y1),
                     x2 - x1,
@@ -53,14 +53,12 @@ class Predictor:
                     facecolor='none'
                 )
                 plt.gca().add_patch(rect)
-
-                class_name = class_names.get(int(cls), f"cls {int(cls)}")
                 plt.text(
                     x1,
                     max(y1 - 5, 15),
-                    f"{class_name} ({conf:.2f})",
+                    f"{conf:.2f}",
                     color="white",
-                    fontsize=9,
+                    fontsize=10,
                     bbox=dict(facecolor="black", alpha=0.5)
                 )
 
