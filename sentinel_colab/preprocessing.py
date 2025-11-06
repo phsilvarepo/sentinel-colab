@@ -16,7 +16,7 @@ class Preprocessor:
         print(f"📦 Installing: {package}")
         subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)   
     
-    def _visualize(self, dataset_path, model):
+    def _visualize(self, dataset_path, model, num_images = 5):
         from pycocotools.coco import COCO
         import pycocotools.mask as maskUtils
 

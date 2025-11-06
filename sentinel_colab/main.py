@@ -35,8 +35,8 @@ class Trainer:
         import pycocotools.mask as maskUtils
 
         if self.model_name == "yolov11":
-            images_dir = os.path.join(self.dataset_path, "train", "images")
-            labels_dir = os.path.join(self.dataset_path, "train", "labels")
+            images_dir = os.path.join(self.dataset_path, "images", "train")
+            labels_dir = os.path.join(self.dataset_path, "labels", "train")
             print(images_dir)
 
             if not os.path.exists(images_dir) or not os.path.exists(labels_dir):
