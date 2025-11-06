@@ -22,7 +22,11 @@ class Predictor:
         if self.model_name == "yolov11":
             model = self._load_model()
             results = model(data_path, conf=conf, save=save)
-            print("here")
+
+            results[0].plot() 
+            plt.imshow(results[0].plot())
+            plt.axis("off")
+            plt.show()
 
         elif self.model_name == "rfdetr":
             model = self._load_model()
