@@ -118,17 +118,6 @@ class Preprocessor:
                         cv2.putText(img, cat_name, (x, max(y - 5, 15)),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-                    # Draw masks (if available)
-                    if show_masks and "segmentation" in ann:
-                        seg = ann["segmentation"]
-                        if isinstance(seg, list):  # polygon
-                            for poly in seg:
-                                poly = np.array(poly).reshape((-1, 2)).astype(np.int32)
-                                cv2.polylines(img, [poly], True, (255, 0, 0), 2)
-                        elif isinstance(seg, dict):  # RLE mask
-                            mask = maskUtils.decode(seg)
-                            img[mask == 1] = img[mask == 1] * 0.5 + np.array([255, 0, 0]) * 0.5
-
                 plt.figure(figsize=(7, 7))
                 plt.imshow(img)
                 plt.axis("off")
