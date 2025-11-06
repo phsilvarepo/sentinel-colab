@@ -15,5 +15,5 @@ class Exporter:
             print("Currently only YOLO models in TFJS format are supported for exporting...")
 
         def _install(self, package):
-        print(f"📦 Installing: {package}")
-        subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True) 
+            print(f"📦 Installing: {package}")
+            subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True) 
