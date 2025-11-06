@@ -78,7 +78,6 @@ class Preprocessor:
                 plt.figure(figsize=(6, 6))
                 plt.imshow(img_rgb)
                 plt.axis("off")
-                plt.title(f"📷 {img_name}")
                 plt.show()
 
         elif model == "rfdetr":
@@ -124,48 +123,29 @@ class Preprocessor:
                 plt.figure(figsize=(7, 7))
                 plt.imshow(img)
                 plt.axis("off")
-                plt.title(f"📸 {img_info['file_name']}")
                 plt.show()  
         else:
             print("Model not supported, currently only the YOLO annotation format(yolo) and the COCO annotation format(rfdetr) are available")
 
-    def _convert_yolo_to_coco(self, dataset_path, output_dir="dataset_coco", move=True):
-        """Converts YOLO-format dataset to COCO-format locally and mirrors directory structure."""
+    def _convert_yolo_to_coco(self, dataset_path, output_dir="dataset_coco", move=True, test_split=0.5):
+        """Converts YOLO-format dataset to COCO-format locally.
+        If YOLO dataset has no test split, uses 50% of val as COCO test.
+        """
         self._install("pylabel")
         from pylabel import importer
 
-        # YOLO -> COCO mapping
-        yolo_splits = ["train", "test", "val"]
-        coco_splits = {"train": "train", "test": "test", "val": "valid"}
+        def export_split(yolo_split, coco_split, labels_dir, images_dir):
+            """Helper to import YOLO and export COCO for one split."""
+            print(f"⚙️ Processing split: {yolo_split} → {coco_split}")
 
-        for split in yolo_splits:
-            labels_dir = join(dataset_path, "labels", split)
-            images_dir = join(dataset_path, "images", split)
-
-            if not os.path.exists(labels_dir) or not os.path.exists(images_dir):
-                print(f"⚠️ Skipping {split}: missing labels or images directory.")
-                continue
-
-            print(f"⚙️ Processing split: {split}")
-
-            # Import YOLO dataset
-            yolo_dataset = importer.ImportYoloV5(
-                path=dataset_path,
-                path_to_annotations=f"labels/{split}",
-                path_to_images=f"images/{split}"
-            )
-
-            # COCO split name (val → valid)
-            coco_split = coco_splits[split]
+            yolo_dataset = importer.ImportYoloV5(labels_dir)
             split_out_dir = join(output_dir, coco_split)
             os.makedirs(split_out_dir, exist_ok=True)
 
-            # Export to COCO JSON
             output_json = join(split_out_dir, "_annotations.coco.json")
             yolo_dataset.export.ExportToCoco(output_path=output_json)
             print(f"✅ Exported COCO JSON to: {output_json}")
 
-            # Copy or move images
             for file in os.listdir(images_dir):
                 if file.lower().endswith((".jpg", ".jpeg", ".png")):
                     src_file = join(images_dir, file)
@@ -174,10 +154,95 @@ class Preprocessor:
                         shutil.move(src_file, dst_file)
                     else:
                         shutil.copy2(src_file, dst_file)
+            print(f"📸 {'Moved' if move else 'Copied'} images for {coco_split}.\n")
 
-            print(f"📸 {'Moved' if move else 'Copied'} images for {coco_split} split.\n")
+        print("⚙️ Converting YOLO to COCO...")
 
-        print(f"🎯 COCO dataset saved to {output_dir}")
+        yolo_splits = ["train", "val", "test"]
+        available_splits = [s for s in yolo_splits if os.path.exists(join(dataset_path, "labels", s))]
+
+        has_test = "test" in available_splits
+        print(f"📊 Found splits: {available_splits}")
+        print(f"🧠 Test split detected: {has_test}")
+
+        # --- Train always exists ---
+        if "train" in available_splits:
+            export_split(
+                "train",
+                "train",
+                join(dataset_path, "labels/train"),
+                join(dataset_path, "images/train"),
+            )
+
+        # --- Handle validation and test ---
+        if has_test:
+
+            if "val" in available_splits:
+                export_split(
+                    "val",
+                    "valid",
+                    join(dataset_path, "labels/val"),
+                    join(dataset_path, "images/val"),
+                )
+
+            export_split(
+                "test",
+                "test",
+                join(dataset_path, "labels/test"),
+                join(dataset_path, "images/test"),
+            )
+        else:
+            # Split val accordinf to the ratio into valid/test
+            val_labels = join(dataset_path, "labels/val")
+            val_images = join(dataset_path, "images/val")
+            if not os.path.exists(val_labels) or not os.path.exists(val_images):
+                print("❌ No val split found. Cannot create COCO valid/test splits.")
+                return
+
+            print("⚠️ No YOLO test split found — splitting val into valid/test according to the ratio: ", test_ratio)
+
+            # Get all images and shuffle
+            val_files = [f for f in os.listdir(val_images) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+            random.shuffle(val_files)
+            test_count = int(len(val_files) * test_split)
+            test_files = val_files[:test_count]
+            valid_files = val_files[test_count:]
+
+            # Create temp split directories
+            temp_base = join(dataset_path, "_temp_split")
+            os.makedirs(temp_base, exist_ok=True)
+            valid_img_dir = join(temp_base, "images/valid")
+            test_img_dir = join(temp_base, "images/test")
+            valid_lbl_dir = join(temp_base, "labels/valid")
+            test_lbl_dir = join(temp_base, "labels/test")
+            os.makedirs(valid_img_dir, exist_ok=True)
+            os.makedirs(test_img_dir, exist_ok=True)
+            os.makedirs(valid_lbl_dir, exist_ok=True)
+            os.makedirs(test_lbl_dir, exist_ok=True)
+
+            # Copy images and labels
+            for f in valid_files:
+                lbl = os.path.splitext(f)[0] + ".txt"
+                if os.path.exists(join(val_images, f)):
+                    shutil.copy2(join(val_images, f), join(valid_img_dir, f))
+                if os.path.exists(join(val_labels, lbl)):
+                    shutil.copy2(join(val_labels, lbl), join(valid_lbl_dir, lbl))
+
+            for f in test_files:
+                lbl = os.path.splitext(f)[0] + ".txt"
+                if os.path.exists(join(val_images, f)):
+                    shutil.copy2(join(val_images, f), join(test_img_dir, f))
+                if os.path.exists(join(val_labels, lbl)):
+                    shutil.copy2(join(val_labels, lbl), join(test_lbl_dir, lbl))
+
+            # Export both splits
+            export_split("valid", "valid", valid_lbl_dir, valid_img_dir)
+            export_split("test", "test", test_lbl_dir, test_img_dir)
+
+            # Cleanup temp dirs
+            shutil.rmtree(temp_base, ignore_errors=True)
+
+        print(f"🎯 COCO dataset ready at: {output_dir}")
 
 
     def _convert_coco_to_yolo(self, dataset_path, output_dir="dataset_yolo", move=True):
