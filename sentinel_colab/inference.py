@@ -23,8 +23,10 @@ class Predictor:
             model = self._load_model()
             results = model(data_path, conf=conf, save=save)
 
-            results[0].plot() 
-            plt.imshow(results[0].plot())
+            img_bgr = results[0].plot()     
+            img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+
+            plt.imshow(img_rgb)
             plt.axis("off")
             plt.show()
 
@@ -81,30 +83,50 @@ class Predictor:
         if self.model_name == "rfdetr":
             self._install("rfdetr supervision albumentations")
 
-            if self.weights is None:
-                self.weights = "default"
-
-            if self.model_type == "detection":
-                if self.model_size == "nano":
-                    from rfdetr import RFDETRNano
-                    model = RFDETRNano(pretrain_weights=self.weights)
-                elif self.model_size == "small":
-                    from rfdetr import RFDETRSmall
-                    model = RFDETRSmall(pretrain_weights=self.weights)
-                elif self.model_size == "medium":
-                    from rfdetr import RFDETRMedium
-                    model = RFDETRMedium(pretrain_weights=self.weights)
-                elif self.model_size == "large":
-                    from rfdetr import RFDETRLarge
-                    model = RFDETRLarge(pretrain_weights=self.weights)
-            elif self.model_type == "segmentation":
-                from rfdetr import RFDETRSegPreview
-                if self.resolution == 312:
-                    model = RFDETRSegPreview(resolution=312, pretrain_weights=self.weights)
-                elif self.resolution == 384:
-                    model = RFDETRSegPreview(resolution=384, pretrain_weights=self.weights)
-                elif self.resolution == 432:
-                    model = RFDETRSegPreview(resolution=432, pretrain_weights=self.weights)
+            if self.weights != None:
+                if self.model_type == "detection":
+                    if self.model_size == "nano":
+                        from rfdetr import RFDETRNano
+                        model = RFDETRNano(pretrain_weights=self.weights)
+                    elif self.model_size == "small":
+                        from rfdetr import RFDETRSmall
+                        model = RFDETRSmall(pretrain_weights=self.weights)
+                    elif self.model_size == "medium":
+                        from rfdetr import RFDETRMedium
+                        model = RFDETRMedium(pretrain_weights=self.weights)
+                    elif self.model_size == "large":
+                        from rfdetr import RFDETRLarge
+                        model = RFDETRLarge(pretrain_weights=self.weights)
+                elif self.model_type == "segmentation":
+                    from rfdetr import RFDETRSegPreview
+                    if self.resolution == 312:
+                        model = RFDETRSegPreview(resolution=312, pretrain_weights=self.weights)
+                    elif self.resolution == 384:
+                        model = RFDETRSegPreview(resolution=384, pretrain_weights=self.weights)
+                    elif self.resolution == 432:
+                        model = RFDETRSegPreview(resolution=432, pretrain_weights=self.weights)
+            else:
+                if self.model_type == "detection":
+                    if self.model_size == "nano":
+                        from rfdetr import RFDETRNano
+                        model = RFDETRNano()
+                    elif self.model_size == "small":
+                        from rfdetr import RFDETRSmall
+                        model = RFDETRSmall()
+                    elif self.model_size == "medium":
+                        from rfdetr import RFDETRMedium
+                        model = RFDETRMedium()
+                    elif self.model_size == "large":
+                        from rfdetr import RFDETRLarge
+                        model = RFDETRLarge()
+                elif self.model_type == "segmentation":
+                    from rfdetr import RFDETRSegPreview
+                    if self.resolution == 312:
+                        model = RFDETRSegPreview(resolution=312)
+                    elif self.resolution == 384:
+                        model = RFDETRSegPreview(resolution=384)
+                    elif self.resolution == 432:
+                        model = RFDETRSegPreview(resolution=432)
 
             return model
 
