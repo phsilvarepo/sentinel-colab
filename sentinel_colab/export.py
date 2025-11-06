@@ -8,7 +8,7 @@ class Exporter:
         if self.model_name == "yolo":
             print(f"🚀 Exporting model: {self.model_name}")
             self._install("ultralytics")
-            import YOLO
+            from ultralytics import YOLO
             model = YOLO(model_path)
             model.export(format="tfjs")
         else:
