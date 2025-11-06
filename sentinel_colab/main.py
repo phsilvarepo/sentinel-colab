@@ -1,7 +1,7 @@
 import subprocess
 import sys
 import torch
-from preprocessing import Preprocessor
+from .preprocessing import Preprocessor
 
 class Trainer:
     def __init__(self, model_name: str, dataset_path: str, model_type: str,
