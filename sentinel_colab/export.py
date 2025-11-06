@@ -1,9 +1,5 @@
-import os 
-import cv2
 import subprocess
 import sys
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 class Exporter:
     def __init__(self, model_name: str, model_path: str, output_dir: str):
