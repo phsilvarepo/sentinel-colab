@@ -150,16 +150,70 @@ class Preprocessor:
         print(f"✅ COCO JSON saved to {output_json}")
 
 
-    def _convert_coco_to_yolo(self, dataset_path, output_dir="dataset_yolo"):
-        """Converts COCO-format dataset to YOLO-format locally."""
+    def _convert_coco_to_yolo(self, dataset_path, output_dir="dataset_yolo", move=True):
+        """Converts COCO-format dataset to YOLO-format locally and creates data.yaml."""
+        import shutil
+        import json
+        from os.path import join
+
+        # Install pylabel if needed
         self._install("pylabel")
         from pylabel import importer
 
-        print("⚙️ Converting COCO to YOLO locally...")
+        splits = ["train", "test", "valid"]
+        all_classes = {}
 
-        coco_dataset = importer.ImportCoco(path=dataset_path)
-        coco_dataset.export.ExportToYoloV5(output_path=output_dir)
+        for split in splits:
+            coco_json = join(dataset_path, split, "_annotations.coco.json")
+            if not os.path.exists(coco_json):
+                print(f"⚠️ Skipping {split}: No annotation file found at {coco_json}")
+                continue
 
-        print(f"✅ YOLO dataset saved to {output_dir}")
+            # Import COCO dataset
+            coco_dataset = importer.ImportCoco(path=coco_json)
 
-    
+            # Export to YOLO format
+            export_path = join(output_dir, "labels", split)
+            os.makedirs(export_path, exist_ok=True)
+            coco_dataset.export.ExportToYoloV5(output_path=export_path)
+            print(f"✅ Exported labels to: {export_path}")
+
+            # Copy or move images
+            src_img_dir = join(dataset_path, split)
+            dst_img_dir = join(output_dir, "images", split)
+            os.makedirs(dst_img_dir, exist_ok=True)
+
+            for file in os.listdir(src_img_dir):
+                if file.lower().endswith((".jpg", ".jpeg", ".png")):
+                    src_file = join(src_img_dir, file)
+                    dst_file = join(dst_img_dir, file)
+                    if move:
+                        shutil.move(src_file, dst_file)
+                    else:
+                        shutil.copy2(src_file, dst_file)
+
+            print(f"📸 {'Moved' if move else 'Copied'} images for {split} split.\n")
+
+            # Collect category names from COCO JSON
+            with open(coco_json, "r") as f:
+                data = json.load(f)
+                for cat in data.get("categories", []):
+                    all_classes[cat["id"]] = cat["name"]
+
+        # 🔹 Generate data.yaml
+        yaml_path = join(output_dir, "data.yaml")
+        with open(yaml_path, "w") as f:
+            f.write(f"path: {os.path.abspath(output_dir)}\n")
+            f.write("train: images/train\n")
+            f.write("val: images/valid\n")
+            f.write("test: images/test\n\n")
+            f.write("names:\n")
+            for cid, cname in sorted(all_classes.items()):
+                f.write(f"  {cid - min(all_classes.keys())}: {cname}\n")  # normalize IDs to start from 0
+
+        print(f"🧾 data.yaml created at: {yaml_path}")
+        print(f"✅ YOLO dataset ready at: {output_dir}")
+
+
+
+            
