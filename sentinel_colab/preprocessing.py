@@ -175,21 +175,21 @@ class Preprocessor:
         print(f"✅ Merge complete! Final dataset saved at: {output_dir}")
 
     def _merge_yolo_datasets(self, yolo_path_1, yolo_path_2, output_dir):
-    """Merge two YOLO datasets into one."""
-    splits = ["train", "val", "test"]
-    for split in splits:
-        for subdir in ["images", "labels"]:
-            src_1 = os.path.join(yolo_path_1, subdir, split)
-            src_2 = os.path.join(yolo_path_2, subdir, split)
-            dst = os.path.join(output_dir, subdir, split)
-            os.makedirs(dst, exist_ok=True)
+        """Merge two YOLO datasets into one."""
+        splits = ["train", "val", "test"]
+        for split in splits:
+            for subdir in ["images", "labels"]:
+                src_1 = os.path.join(yolo_path_1, subdir, split)
+                src_2 = os.path.join(yolo_path_2, subdir, split)
+                dst = os.path.join(output_dir, subdir, split)
+                os.makedirs(dst, exist_ok=True)
 
-            for src in [src_1, src_2]:
-                if os.path.exists(src):
-                    for f in os.listdir(src):
-                        shutil.copy2(os.path.join(src, f), dst)
+                for src in [src_1, src_2]:
+                    if os.path.exists(src):
+                        for f in os.listdir(src):
+                            shutil.copy2(os.path.join(src, f), dst)
 
-    print(f"✅ YOLO datasets merged at {output_dir}")
+        print(f"✅ YOLO datasets merged at {output_dir}")
 
     def _merge_coco_datasets(self, coco_path_1, coco_path_2, output_dir):
         """Merge two COCO datasets into one combined annotation JSON."""
