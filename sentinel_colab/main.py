@@ -2,6 +2,7 @@ import subprocess
 import sys
 import torch
 from .preprocessing import Preprocessor
+from utils.installer import install_package
 
 class Trainer:
     def __init__(self, model_name: str, dataset_path: str, model_type: str,
@@ -28,13 +29,9 @@ class Trainer:
 
         self.default_hyperparams = self._get_default_hyperparams()
 
-    def _install(self, package):
-        print(f"📦 Installing: {package}")
-        subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
-
     def _load_model(self):
         if self.model_name == "rfdetr":
-            self._install("rfdetr supervision albumentations")
+            install_package("rfdetr supervision albumentations")
             if self.model_type == "detection":
                 if self.model_size == "nano":
                     from rfdetr import RFDETRNano
@@ -60,7 +57,7 @@ class Trainer:
             return model
 
         elif self.model_name == "yolov8":
-            self._install("ultralytics")
+            install_package("ultralytics")
             from ultralytics import YOLO
 
             print(f"📘 Loading YOLOv8 ({self.model_type}, {self.model_size}) model...")
@@ -84,7 +81,7 @@ class Trainer:
             return model
 
         elif self.model_name == "yolov11":
-            self._install("ultralytics")
+            install_package("ultralytics")
             from ultralytics import YOLO
 
             print(f"📘 Loading YOLOv11 ({self.model_type}, {self.model_size}) model...")

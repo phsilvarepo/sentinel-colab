@@ -4,6 +4,7 @@ import subprocess
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from utils.installer import install_package
 
 class Predictor:
     def __init__(self, model_name: str, model_type: str, data_path: str, weights: str = None, model_size: str = "medium", save: bool = False, conf: float = 0.4, resolution: int = 384):
@@ -73,13 +74,9 @@ class Predictor:
                 print(f"💾 Saved annotated image at: {output_path}")
                 plt.close()
 
-    def _install(self, package):
-        print(f"📦 Installing: {package}")
-        subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)
-
     def _load_model(self):
         if self.model_name == "rfdetr":
-            self._install("rfdetr supervision albumentations")
+            install_package("rfdetr supervision albumentations")
 
             if self.weights != None:
                 if self.model_type == "detection":
@@ -129,7 +126,7 @@ class Predictor:
             return model
 
         elif self.model_name == "yolov11":
-            self._install("ultralytics")
+            install_package("ultralytics")
             from ultralytics import YOLO
 
             if self.weights is None:
@@ -139,7 +136,7 @@ class Predictor:
             return model
 
         elif self.model_name == "yolov8":
-            self._install("ultralytics")
+            install_package("ultralytics")
             from ultralytics import YOLO
 
             if self.weights is None:

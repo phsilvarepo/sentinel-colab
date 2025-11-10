@@ -9,15 +9,12 @@ import numpy as np
 import shutil
 from os.path import join
 import json
+from utils.installer import install_package
 
 class Preprocessor:
     def __init__(self):
         """Handles dataset visualization and conversion between YOLO and COCO formats."""
         print("🧩 Preprocessor initialized.")
-
-    def _install(self, package):
-        print(f"📦 Installing: {package}")
-        subprocess.run([sys.executable, "-m", "pip", "install", *package.split(), "-q"], check=True)   
     
     def _rename_files(self, model_name, dataset_path, prefix=None):
         """
@@ -196,7 +193,7 @@ class Preprocessor:
 
     def _merge_coco_datasets(self, coco_path_1, coco_path_2, output_dir):
         """Merge two COCO datasets into one combined annotation JSON."""
-        self._install("pycocotools")
+        install_package("pycocotools")
         from pycocotools.coco import COCO
 
         splits = ["train", "valid", "test"]
@@ -361,7 +358,7 @@ class Preprocessor:
         """Converts YOLO-format dataset to COCO-format locally.
         If YOLO dataset has no test split, uses 50% of val as COCO test.
         """
-        self._install("pylabel")
+        install_package("pylabel")
         from pylabel import importer
 
         def export_split(yolo_split, coco_split, labels_dir, images_dir):
@@ -477,7 +474,7 @@ class Preprocessor:
 
     def _convert_coco_to_yolo(self, dataset_path, output_dir="dataset_yolo", move=True):
         """Converts COCO-format dataset to YOLO-format locally and creates data.yaml with 'val' instead of 'valid'."""
-        self._install("pylabel")
+        install_package("pylabel")
         from pylabel import importer
 
         # COCO uses "valid", YOLO will use "val"
