@@ -19,7 +19,7 @@ class Predictor:
         print(f"🚀 Performing inference for model: {self.model_name}")
         print(f"📂 Data path: {self.data_path}")
 
-        if self.model_name == "yolov11":
+        if self.model_name == "yolov11" or self.model_name == "yolov8":
             model = self._load_model()
             results = model(data_path, conf=conf, save=save)
 
@@ -134,6 +134,16 @@ class Predictor:
 
             if self.weights is None:
                 self.weights = "yolo11m.pt"
+
+            model = YOLO(self.weights)
+            return model
+
+        elif self.model_name == "yolov8":
+            self._install("ultralytics")
+            from ultralytics import YOLO
+
+            if self.weights is None:
+                self.weights = "yolov8m.pt"
 
             model = YOLO(self.weights)
             return model

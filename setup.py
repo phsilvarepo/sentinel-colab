@@ -5,7 +5,7 @@ setup(
     version="0.1.0",                   # Version
     author="Pedro Silva",                # Replace with your name
     author_email="pedrosilva7320@gmail.com",    # Replace with your email
-    description="A Colab-friendly package to speed up training of RF-DETR and YOLOv11 models",
+    description="A Colab-friendly package to speed up training of RF-DETR and YOLOv11/YOLOv8 models",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/phsilvarepo/sentinel-colab",  # Replace with your repo URL

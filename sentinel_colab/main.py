@@ -59,6 +59,30 @@ class Trainer:
 
             return model
 
+        elif self.model_name == "yolov8":
+            self._install("ultralytics")
+            from ultralytics import YOLO
+
+            print(f"📘 Loading YOLOv8 ({self.model_type}, {self.model_size}) model...")
+
+            size_map = {
+                "nano": "n",
+                "small": "s",
+                "medium": "m",
+                "large": "l",
+                "largest": "x",
+            }
+
+            suffix = size_map.get(self.model_size, "m")
+
+            if self.model_type == "detection":
+                model_path = f"yolov8{suffix}.pt"
+            elif self.model_type == "segmentation":
+                model_path = f"yolov8{suffix}-seg.pt"
+
+            model = YOLO(model_path)
+            return model
+
         elif self.model_name == "yolov11":
             self._install("ultralytics")
             from ultralytics import YOLO
@@ -85,9 +109,9 @@ class Trainer:
 
     def _get_default_hyperparams(self):
         """Define default hyperparameters for each model type."""
-        if self.model_name == "yolov11":
+        if self.model_name == "yolov11" or self.model_name == "yolov8":
             return {
-                "epochs": 100,
+                "epochs": 50,
                 "batch_size": 16,
                 "imgsz": 640,
                 "lr0": 0.01,
@@ -95,6 +119,7 @@ class Trainer:
                 "weight_decay": 0.0005,
                 "patience": 20,
             }
+
         elif self.model_name == "rfdetr":
             return {
                 "epochs": 50,
@@ -124,8 +149,8 @@ class Trainer:
                 weight_decay=train_args["weight_decay"],
             )
 
-        elif self.model_name == "yolov11":
-            print("🏋️ Training YOLOv11...")
+        elif self.model_name == "yolov11" or self.model_name == "yolov8":
+            print("🏋️ Training YOLOv11/YOLOv8...")
             from os.path import join
             yaml_path = join(self.dataset_path, "data.yaml")
 
