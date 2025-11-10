@@ -1,4 +1,4 @@
-from utils.installer import install_package
+from ..utils.installer import install_package
 
 class Exporter:
     def __init__(self, model_name: str, model_path: str, output_dir: str):

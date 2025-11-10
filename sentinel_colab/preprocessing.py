@@ -9,7 +9,7 @@ import numpy as np
 import shutil
 from os.path import join
 import json
-from utils.installer import install_package
+from ..utils.installer import install_package
 
 class Preprocessor:
     def __init__(self):

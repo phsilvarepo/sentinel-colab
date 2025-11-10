@@ -4,7 +4,7 @@ import subprocess
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from utils.installer import install_package
+from ..utils.installer import install_package
 
 class Predictor:
     def __init__(self, model_name: str, model_type: str, data_path: str, weights: str = None, model_size: str = "medium", save: bool = False, conf: float = 0.4, resolution: int = 384):

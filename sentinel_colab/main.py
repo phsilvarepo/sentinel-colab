@@ -2,7 +2,7 @@ import subprocess
 import sys
 import torch
 from .preprocessing import Preprocessor
-from utils.installer import install_package
+from ..utils.installer import install_package
 
 class Trainer:
     def __init__(self, model_name: str, dataset_path: str, model_type: str,
